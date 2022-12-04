@@ -4,37 +4,29 @@ from os.path import dirname, abspath, join
 import pandas as pd
 
 from database import DataBase
-from user import User, UserBase
+from userbase import UserBase
 
 
 class System:
 
     def __init__(self) -> None:
+        
         root_path = dirname(abspath(__file__))
         lib_path = join(root_path, 'lib')
         data_path = join(root_path, 'lib', 'data')
         self.generate_folder(lib_path)
         self.generate_folder(data_path)
 
-        self.userbase = UserBase()
+        self.userbase = UserBase(lib_path)
         self.database = DataBase(data_path)
-        
-        self.user_interface = None
 
-    def sign_up(self, uid, pw, acc_lvl):
-        user = User(uid, pw, acc_lvl)
-        self.user_list.append(user)
-        return None
+        self.user_interface = UI(self)
+        self.user_interface.run()
 
-    def sign_in(self, uid, pw):
-        user = User(uid, pw)
-        for exist_user in self.user_list:
-            if exist_user == user:
-                user.access_level = exist_user.access_level
-                print('Successfully Logged In')
-                return True
-        print('Incorrect User Name or Password')
-        return False
+        self.userbase.save_to_local()
+        self.database.save_to_local()
+
+
 
     @staticmethod
     def generate_folder(path: str) -> None:
@@ -47,7 +39,7 @@ class System:
 #%%
 if __name__ == '__main__':
     system = System()
-    system.database.add('test/TDCS_M06A_20190830_080000.csv', 'taiwan_traffic_data')
+    # system.database.add('test/TDCS_M06A_20190830_080000.csv', 'taiwan_traffic_data')
 
     working_sheet = system.database.access('taiwan_traffic_data')
     col_name_list = ['VehicleType', 'DerectionTime_O']
