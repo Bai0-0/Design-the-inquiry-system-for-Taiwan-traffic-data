@@ -79,6 +79,7 @@ class UI:
 
         if vals2['-CB_Vehicle-'] == True:
             print(vals2['-LB_Vehicle-'])
+
             filter_dict['VehicleType'] = vals2['-LB_Vehicle-']
         if vals2['-CB_TimeO-'] == True:
             filter_dict['DerectionTime_O'] = tuple(self.int_tuple_to_datetime(vals2['-From_OMin-'], vals2['-From_OSec-']),
@@ -98,6 +99,8 @@ class UI:
 
         if vals2['-CB_TripE-']== True:
             filter_dict['TripEnd'] = vals2['-LB_TripE-']  
+
+        print(filter_dict)
 
         self.res_table = working_sheet.search(filter_dict).get()
 
@@ -151,8 +154,6 @@ class UI:
                     
 
                     if ev2 == '-Search-': #press search button
-                        
-
                         self.search(self.working_sheet, vals2)
 
                     if ev2 == 'sort':

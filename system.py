@@ -5,6 +5,7 @@ import pandas as pd
 
 from database import DataBase
 from userbase import UserBase
+from user_interface import UI
 
 
 class System:
@@ -20,6 +21,7 @@ class System:
         self.userbase = UserBase(lib_path)
         self.database = DataBase(data_path)
 
+        self.database.add('test/TDCS_M06A_20190830_080000.csv', 'taiwan_traffic_data')
         self.user_interface = UI(self)
         self.user_interface.run()
 
@@ -41,21 +43,21 @@ if __name__ == '__main__':
     system = System()
     # system.database.add('test/TDCS_M06A_20190830_080000.csv', 'taiwan_traffic_data')
 
-    working_sheet = system.database.access('taiwan_traffic_data')
-    col_name_list = ['VehicleType', 'DerectionTime_O']
-    ascending_list = [True, False]
-    working_sheet.sort(col_name_list, ascending_list)
-    filter_dict = {
-        'VehicleType': [5, 31],
-        'DerectionTime_D': (pd.to_datetime('2019-08-30 08:14:00'), pd.to_datetime('2019-08-30 08:17:00')), 
-        'Gantry_O': '03F3307N',
-        'TripLength': (5, 20),
-        'TripEnd': ['Y']
-    }
-    test = working_sheet.search(filter_dict)
+    # working_sheet = system.database.access('taiwan_traffic_data')
+    # col_name_list = ['VehicleType', 'DerectionTime_O']
+    # ascending_list = [True, False]
+    # working_sheet.sort(col_name_list, ascending_list)
+    # filter_dict = {
+    #     'VehicleType': [5, 31],
+    #     'DerectionTime_D': (pd.to_datetime('2019-08-30 08:14:00'), pd.to_datetime('2019-08-30 08:17:00')), 
+    #     'Gantry_O': '03F3307N',
+    #     'TripLength': (5, 20),
+    #     'TripEnd': ['Y']
+    # }
+    # test = working_sheet.search(filter_dict)
 
-    # system.database.delete('taiwan_traffic_data')
-    system.database.save_to_local()
-    print(system.database.show_content())
-    print(test.get().shape)
+    # # system.database.delete('taiwan_traffic_data')
+    # system.database.save_to_local()
+    # print(system.database.show_content())
+    # print(test.get().shape)
 # %%
