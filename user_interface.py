@@ -35,7 +35,7 @@ class UI:
 
                     #Column 1 
                     [sg.Checkbox('VehicleType', k='-CB_Vehicle-'),sg.Listbox(size=(10,5),values = vehicle_list, select_mode = 'multiple',key = "-LB_Vehicle-")],
-                    [sg.Text('*5-semi-trailer truck, 31-minibus, 32-van, 41-large van, 42-large truck',size = [10,1])],
+                    [sg.Text('*5-semi-trailer truck, 31-minibus, 32-van, 41-large van, 42-large truck')],
 
                     #Column 2
                     [sg.Checkbox('DerectionTime_O', k='-CB_TimeO-'), sg.Text("From 2019-08-30 08:"), sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-From_OMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-From_OSec-'),
@@ -80,6 +80,7 @@ class UI:
         filter_dict = { }
 
         if vals2['-CB_Vehicle-'] == True:
+            print(filter_dict)
             filter_dict['VehicleType'] = [int(x) for x in vals2['-LB_Vehicle-']]
         
         if vals2['-CB_TimeO-'] == True:
@@ -107,11 +108,12 @@ class UI:
         if len(self.res_table) == 0: # no search result
 
             self.win_homePage['-warning-'].update(visible = True) #show warning message
+            self.win_homePage['-res-'].update([[0]])
 
         else:
 
             self.res_table['DerectionTime_D'] = self.res_table['DerectionTime_D'].astype(str)
-            self.res_table['DerectionTime_O'] = self.res_table['DerectionTime_O'].apply(lambda df: str(df))
+            self.res_table['DerectionTime_O'] = self.res_table['DerectionTime_O'].astype(str)
             temp = self.res_table.copy()
 
             num_row = int(vals2['-Input_head-'])
@@ -119,7 +121,6 @@ class UI:
             temp = temp.values.tolist()
 
             self.win_homePage['-res-'].update(temp)
-            # self.win_homePage['-res-'].update([[1,2,3,4,5,6,7]])
             self.win_homePage['-warning-'].update(visible = False)
     
     def run(self): 
