@@ -1,8 +1,23 @@
 
 # %%
 import PySimpleGUI as sg
+import pandas as pd
+from pandas import Timestamp
+from system import System
 
 class UI:
+
+    @staticmethod
+    def int_tuple_to_datetime(M, S):
+        strm = str(M)
+        strs = str(S)
+        if len(strm) < 2:
+            strm = '0' + strm
+        if len(strs) < 2:
+            strs = '0' + strs
+        date = '2019-08-30 08:' + strm + ':' + strs
+
+        return pd.to_datetime(date)
 
     def __init__(self, system) -> None: #system:System
         self.system = system
@@ -11,8 +26,8 @@ class UI:
         #header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd")
         vehicle_list = ('5','31','32','41','42')
         layout_userPage =[[sg.Text("Please enter your ID and Password:")],
-                        [sg.Text("User ID  :"), sg.InputText(key = "userID")],
-                        [sg.Text("Password :"), sg.InputText(key = "pwd", password_char='*')],
+                        [sg.Text("User ID  :"), sg.Input(key = "userID")],
+                        [sg.Text("Password :"), sg.Input(key = "pwd", password_char='*')],
                         [sg.Button("Login"), sg.Button('Exit')]]
 
         frame_search =sg.Frame(title ='Search',layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
@@ -27,7 +42,7 @@ class UI:
                     [sg.Text('*Time for the vehicle to arrive the first station')],
                 
                     #Col 3
-                    [sg.Checkbox('Gantry_O', k='-CB_GO-'),sg.InputText(key = '-Input_GO-',size = [10,1])],
+                    [sg.Checkbox('Gantry_O', k='-CB_GO-'),sg.Input(key = '-Input_GO-',size = [10,1])],
                     [sg.Text('*ID of the vehicle to arrive the first station')],
 
                     #col4
@@ -36,26 +51,68 @@ class UI:
                     [sg.Text('*Time for the vehicle to arrive the last station')],
 
                     #col5
-                    [sg.Checkbox('Gantry_D', k='-CB_GD-'),sg.InputText(key = '-Input_GD-',size = [10,1])],
+                    [sg.Checkbox('Gantry_D', k='-CB_GD-'),sg.Input(key = '-Input_GD-',size = [10,1])],
                     [sg.Text('*ID of the vehicle to arrive the last station')],
 
                     #col6
-                    [sg.Checkbox('TripLength', k='-CB_TripLen-'),sg.InputText(key = '-Input_TripLen-',size = [10,1])],
+                    [sg.Checkbox('TripLength', k='-CB_TripLen-'),sg.Input(key = '-Input_TripLen-',size = [10,1])],
                     [sg.Text('*Travel distance')],
 
                     #col7
-                    [sg.Checkbox('TripEnd', k='-CB_TripE-'),sg.Radio('Y-Normal', "Radio", size=(10,1), k='-TripE_Y-'),sg.Radio('N-Abnormal', "Radio",size=(10,1), k='-TripE_N-')],
+                    [sg.Checkbox('TripEnd', k='-CB_TripE-'), sg.Listbox(values = ('Y','N'),size = [2,1],select_mode = 'multiple',key = "-LB_TripE-")],
 
-                    [sg.Button('SEARCH',key = "-Search-")]])
+                    [sg.Text('Number of entry to show:'),sg.Input(k = '-Input_head-'), sg.Button('SEARCH',key = "-Search-"),], 
+                    [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]])
 
-        frame_show = sg.Frame
-        layout_homePage = [[frame_search]]
+        frame_res = sg.Frame(title='Result Display', layout = [[sg.Table(k = '-res-')]] )
+        layout_homePage = [[frame_search],
+                            [frame_res]]
 
         self.win_userPage = sg.Window('Login Page',layout_userPage)
         self.win_homePage = sg.Window('HomePage', layout_homePage,finalize=True)
         self.win_homePage.hide()
         self.win_homePage_active = False
 
+    def search(self, working_sheet, vals2): #working_sheet: Data 
+        
+        self.win_homePage['-warning-'].update(visible = False)
+
+        filter_dict = {}
+
+        if vals2['-CB_Vehicle-']:
+            filter_dict['VehicleType'] = vals2['-LB_Vehicle-']
+        if vals2['-CB_TimeO-']:
+            filter_dict['DerectionTime_O'] = tuple(self.int_tuple_to_datetime(vals2['-From_OMin-'], vals2['-From_OSec-']),
+                                                self.int_tuple_to_datetime(vals2['-To_OMin-'], vals2['-To_OSec-']))
+        if vals2['-CB_GO-']:
+            filter_dict['Gantry_O'] = str(vals2['-Input_GO-'])
+
+        if vals2['-CB_TimeD-']:
+            filter_dict['DerectionTime_D'] = tuple(self.int_tuple_to_datetime(vals2['-From_DMin-'], vals2['-From_DSec-']),
+                                                self.int_tuple_to_datetime(vals2['-To_DMin-'], vals2['-To_DSec-']))
+            
+        if vals2['-CB_GD-']:
+            filter_dict['Gantry_D'] = str(vals2['-Input_GD-'])
+
+        if vals2['-CB_TripLen-']:
+            filter_dict['TripLength'] = tuple(vals2['-Input_TripLen-'])
+
+        if vals2['-CB_TripE-']:
+            filter_dict['TripEnd'] = vals2['-LB_TripE-']  
+
+        temp = working_sheet.search(filter_dict).get()
+
+        if len(temp) == 0: # no search result
+
+            self.win_homePage['-warning-'].update(visible = True) #show warning message
+
+        else:
+            temp['DerectionTime_D'] = temp['DerectionTime_D'].apply(lambda df: str(df))
+            temp['DerectionTime_O'] = temp['DerectionTime_O'].apply(lambda df: str(df))
+            temp.values.tolist()
+            self.win_homePage['-res-'].update(values = temp)
+            self.win_homePage['-warning-'].update(visible = False)
+    
     def run(self): 
 
         while True:
@@ -77,7 +134,8 @@ class UI:
 
                 self.system.sign_up(vals1['userID'], vals1['pwd'], None)
             
-            
+            working_sheet = self.system.database.access('taiwan_traffic_data')
+            working_sheet.search(filter_dict)
 
 
             '''---------step2: Homepage manipulation----------'''
@@ -90,19 +148,9 @@ class UI:
                     '''-----------------Search frame---------------------'''
 
                     if ev2 == '-Search-': #press search button
+                        
+                        self.search(working_sheet, vals2)
 
-                        filter_dict = {}
-
-                        if vals2['-CB_Vehicle-']:
-                            filter_dict['VehicleType'] = vals2['-LB_Vehicle-']
-                        if vals2['-CB_TimeO-']:
-                            filter_dict['DerectionTime_O']
-                        if vals2['-CB_GO-']:
-                            pass
-                        if vals2['']
-                    
-                    if ev2 == "sort":
-                        pass
 
                     if ev2 == sg.WIN_CLOSED or ev2 == 'Exit'  or ev2 == None: #Close homepage and back to login page
                         win_homePage_active  = False
