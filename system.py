@@ -28,8 +28,9 @@ class System:
 class UserInterface:
     def __init__(self, system) -> None:
         self.system = system
-
         print(self.system.database)
+        working_sheet = self.system.database.access('taiwan_traffic_data')
+        working_sheet.search(filter_dict)
 #%%
 system = System()
 
