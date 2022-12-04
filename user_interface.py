@@ -3,8 +3,7 @@
 import PySimpleGUI as sg
 import pandas as pd
 from pandas import Timestamp
-from system import System
-
+# %%
 class UI:
 
     @staticmethod
@@ -19,11 +18,11 @@ class UI:
 
         return pd.to_datetime(date)
 
-    def __init__(self, system) -> None: #system:System
+    def __init__(self, system) -> None: #system:System obj
         self.system = system
     
         '''Layout design'''
-        #header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd")
+        header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd")
         vehicle_list = ('5','31','32','41','42')
         layout_userPage =[[sg.Text("Please enter your ID and Password:")],
                         [sg.Text("User ID:"), sg.Input(key = "userID")],
@@ -59,12 +58,12 @@ class UI:
                     [sg.Text('*Travel distance')],
 
                     #col7
-                    [sg.Checkbox('TripEnd', k='-CB_TripE-'), sg.Listbox(values = ('Y','N'),size = [2,1],select_mode = 'multiple',key = "-LB_TripE-")],
+                    [sg.Checkbox('TripEnd', k='-CB_TripE-'), sg.Listbox(values = ('Y','N'),size = [5,2],select_mode = 'multiple',key = "-LB_TripE-")],
 
-                    [sg.Text('Number of entry to show:'),sg.Input(k = '-Input_head-'), sg.Button('SEARCH',key = "-Search-"),], 
+                    [sg.Text('Number of entry to show:'),sg.Input(default_text = '20',k = '-Input_head-',size=[7,1]), sg.Button('SEARCH',key = "-Search-"),], 
                     [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]])
 
-        frame_res = sg.Frame(title='Result Display', layout = [[sg.Table(k = '-res-')]] )
+        frame_res = sg.Frame(title='Result Display', layout = [[sg.Table([[0,0,0,0,0,0,0]], headings = header,num_rows = 10,k = '-res-')]])
         self.layout_homePage = [[sg.Button('Back')],
                             [frame_search],
                             [frame_res]]
@@ -76,43 +75,48 @@ class UI:
         
         self.win_homePage['-warning-'].update(visible = False)
 
-        filter_dict = {}
+        filter_dict = { }
 
-        if vals2['-CB_Vehicle-']:
+        if vals2['-CB_Vehicle-'] == True:
+            print(vals2['-LB_Vehicle-'])
             filter_dict['VehicleType'] = vals2['-LB_Vehicle-']
-        if vals2['-CB_TimeO-']:
+        if vals2['-CB_TimeO-'] == True:
             filter_dict['DerectionTime_O'] = tuple(self.int_tuple_to_datetime(vals2['-From_OMin-'], vals2['-From_OSec-']),
                                                 self.int_tuple_to_datetime(vals2['-To_OMin-'], vals2['-To_OSec-']))
-        if vals2['-CB_GO-']:
+        if vals2['-CB_GO-']== True:
             filter_dict['Gantry_O'] = str(vals2['-Input_GO-'])
 
-        if vals2['-CB_TimeD-']:
+        if vals2['-CB_TimeD-']== True:
             filter_dict['DerectionTime_D'] = tuple(self.int_tuple_to_datetime(vals2['-From_DMin-'], vals2['-From_DSec-']),
                                                 self.int_tuple_to_datetime(vals2['-To_DMin-'], vals2['-To_DSec-']))
             
-        if vals2['-CB_GD-']:
+        if vals2['-CB_GD-']== True:
             filter_dict['Gantry_D'] = str(vals2['-Input_GD-'])
 
-        if vals2['-CB_TripLen-']:
+        if vals2['-CB_TripLen-']== True:
             filter_dict['TripLength'] = tuple(vals2['-Input_TripLen-'])
 
-        if vals2['-CB_TripE-']:
+        if vals2['-CB_TripE-']== True:
             filter_dict['TripEnd'] = vals2['-LB_TripE-']  
 
-        temp = working_sheet.search(filter_dict).get()
+        self.res_table = working_sheet.search(filter_dict).get()
 
-        if len(temp) == 0: # no search result
+        if len(self.res_table) == 0: # no search result
 
             self.win_homePage['-warning-'].update(visible = True) #show warning message
 
         else:
-            temp['DerectionTime_D'] = temp['DerectionTime_D'].apply(lambda df: str(df))
-            temp['DerectionTime_O'] = temp['DerectionTime_O'].apply(lambda df: str(df))
+            self.res_table['DerectionTime_D'] = self.res_table['DerectionTime_D'].apply(lambda df: str(df))
+            self.res_table['DerectionTime_O'] = self.res_table['DerectionTime_O'].apply(lambda df: str(df))
+            temp = self.res_table.copy()
             temp.values.tolist()
-            self.win_homePage['-res-'].update(values = temp)
+            num_row = int(vals2['-Input_head-'])
+            # self.win_homePage['-res-'].update(temp[num_row])
+            self.win_homePage['-res-'].update([[1,2,3,4,5,6,7]])
             self.win_homePage['-warning-'].update(visible = False)
     
     def run(self): 
+        
 
         while True:
             ev1, vals1 = self.win_userPage.read()
@@ -125,34 +129,40 @@ class UI:
             if not self.win_homePage_active and (ev1 == 'Sign In' or ev1 == 'Sign Up'):  
 
                 self.win_homePage_active = True
+                self.win_userPage.hide()
 
                 # self.system.sign_up(vals1['userID'], vals1['pwd'], None)
                 # self.system.sign_in()
 
                 ## create homepage
                 self.win_homePage = sg.Window('HomePage', self.layout_homePage,finalize=True)
-                
+                self.working_sheet = self.system.database.access('taiwan_traffic_data') 
+
+                 
             
-            '''---------step2: Homepage manipulation----------'''
+            '''---------step 3: Homepage manipulation----------'''
             if self.win_homePage_active:
 
-                while self.win_homePage_active:
+                while self.win_homePage_active == True:
                 
                     ev2, vals2 = self.win_homePage.read()
                     
                     '''-----------------Search frame---------------------'''
+                    
 
                     if ev2 == '-Search-': #press search button
-                        working_sheet = self.system.database.access('taiwan_traffic_data')
+                        
 
-                        self.search(working_sheet, vals2)
+                        self.search(self.working_sheet, vals2)
 
+                    if ev2 == 'sort':
+                        pass
 
                     if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
                         win_homePage_active  = False
                         self.win_homePage.close()
 
-                        #self.win_userPage.un_hide()  #back to login page
+                        self.win_userPage.un_hide()  #back to login page
         
         self.win_userPage.close()
         print("End")
