@@ -24,7 +24,7 @@ class UI:
         self.system = system
     
         '''Layout design'''
-        header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd")
+        header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation')
         vehicle_list = ('5','31','32','41','42')
         layout_userPage =[[sg.Text("Please enter your ID and Password:")],
                         [sg.Text("User ID:"), sg.Input(key = "userID")],
@@ -65,7 +65,7 @@ class UI:
                     [sg.Text('Number of entry to show:'),sg.Input(default_text = '20',k = '-Input_head-',size=[7,1]), sg.Button('SEARCH',key = "-Search-"),], 
                     [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]])
 
-        frame_res = sg.Frame(title='Result Display', layout = [[sg.Table([[0,0,0,0,0,0,0]], headings = header,num_rows = 10,k = '-res-')]])
+        frame_res = sg.Frame(title='Result Display', layout = [[sg.Table([[0,0,0,0,0,0,0,0]], headings = header,num_rows = 10,k = '-res-')]])
         self.layout_homePage = [[sg.Button('Back')],
                             [frame_search],
                             [frame_res]]
@@ -80,9 +80,8 @@ class UI:
         filter_dict = { }
 
         if vals2['-CB_Vehicle-'] == True:
-            print(vals2['-LB_Vehicle-'])
-
             filter_dict['VehicleType'] = [int(x) for x in vals2['-LB_Vehicle-']]
+        
         if vals2['-CB_TimeO-'] == True:
             filter_dict['DerectionTime_O'] = tuple(self.int_tuple_to_datetime(vals2['-From_OMin-'], vals2['-From_OSec-']),
                                                 self.int_tuple_to_datetime(vals2['-To_OMin-'], vals2['-To_OSec-']))
@@ -102,8 +101,6 @@ class UI:
         if vals2['-CB_TripE-'] == True:
             filter_dict['TripEnd'] = vals2['-LB_TripE-']  
 
-        print(working_sheet)
-
         self.res_table = working_sheet.search(filter_dict).get()
         print(self.res_table)
 
@@ -112,13 +109,17 @@ class UI:
             self.win_homePage['-warning-'].update(visible = True) #show warning message
 
         else:
-            self.res_table['DerectionTime_D'] = self.res_table['DerectionTime_D'].apply(lambda df: str(df))
+
+            self.res_table['DerectionTime_D'] = self.res_table['DerectionTime_D'].astype(str)
             self.res_table['DerectionTime_O'] = self.res_table['DerectionTime_O'].apply(lambda df: str(df))
             temp = self.res_table.copy()
-            temp.values.tolist()
+
             num_row = int(vals2['-Input_head-'])
-            # self.win_homePage['-res-'].update(temp[num_row])
-            self.win_homePage['-res-'].update([[1,2,3,4,5,6,7]])
+            temp = temp.head(num_row)
+            temp = temp.values.tolist()
+
+            self.win_homePage['-res-'].update(temp)
+            # self.win_homePage['-res-'].update([[1,2,3,4,5,6,7]])
             self.win_homePage['-warning-'].update(visible = False)
     
     def run(self): 
@@ -157,7 +158,6 @@ class UI:
                     
 
                     if ev2 == '-Search-': #press search button
-                        print(self.working_sheet)
                         self.search(self.working_sheet, vals2)
 
                     if ev2 == 'sort':
