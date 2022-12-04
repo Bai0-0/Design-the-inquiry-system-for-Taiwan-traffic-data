@@ -10,3 +10,6 @@ class User:
             return True
         else:
             return False
+
+class UserBase():
+    pass
