@@ -1,5 +1,7 @@
 #%%
 import pandas as pd
+import os
+import shutil
 
 
 class Data:
@@ -8,8 +10,8 @@ class Data:
         self.__data = df.copy()
         
         if type(self.__data.DerectionTime_O[0]) == str:
-            self.__data.DerectionTime_O = pd.to_datetime(self.__data.DerectionTime_O, format='%d/%m/%Y %H:%M')
-            self.__data.DerectionTime_D = pd.to_datetime(self.__data.DerectionTime_D, format='%d/%m/%Y %H:%M')
+            self.__data.DerectionTime_O = pd.to_datetime(self.__data.DerectionTime_O)
+            self.__data.DerectionTime_D = pd.to_datetime(self.__data.DerectionTime_D)
     
     def sort(self, col_name_list: list, ascending_list: list):
         """Sort data
@@ -50,11 +52,11 @@ class Data:
         # f7: list[str]
         f7 = filter_dict.get('TripEnd', None)
 
-        if (f3 is not None) and (f3 not in set(self.__data.Gantry_O)):
-            return (0, 'Gantry_O', f3)
+        # if (f3 is not None) and (f3 not in set(self.__data.Gantry_O)):
+        #     return (0, 'Gantry_O', f3)
         
-        if (f5 is not None) and (f5 not in set(self.__data.Gantry_D)):
-            return (0, 'Gantry_D', f5)
+        # if (f5 is not None) and (f5 not in set(self.__data.Gantry_D)):
+        #     return (0, 'Gantry_D', f5)
 
         res = self.__data.copy()
         if f1 is not None:
@@ -78,21 +80,24 @@ class Data:
         if f7 is not None:
             res = res[res.TripEnd.isin(f7)]
 
-        return (1, Data(res))
+        return Data(res)
 
-    def download(self):
-        pass
-
-    def head(self, max_row: int = 10):
-        return self.__data.head(max_row)
+    def download(self, path):
+        self.__data.to_csv(path, index=False)
     
     def get(self):
         return self.__data
 
 
 class DataBase:
-    def __init__(self) -> None:
+    def __init__(self, data_path) -> None:
         self.__data_list = {}
+        self.__data_path = data_path
+        file_list = os.listdir(self.__data_path)
+        file_list = [f for f in file_list if f != '.DS_Store']
+        if len(file_list) > 0:
+            for f in file_list:
+                self.add(os.path.join(self.__data_path, f), f.rstrip('.csv'))
     
     def add(self, data_path: str, sheet_name: str):
         """Add sheet to the database
@@ -128,27 +133,22 @@ class DataBase:
             self.__data_list.pop(sheet_name)
         else:
             print('Data sheet does not exist in the database.')
-#%%
 
-db = DataBase()
-db.add('data/TDCS_M06A_20190830_080000.csv', 'taiwan_traffic_data')
-working_sheet = db.access('taiwan_traffic_data')
+    def save_to_local(self):
+        shutil.rmtree(self.__data_path)
+        self.generate_folder(self.__data_path)
+        for k in self.__data_list:
+            path = os.path.join(self.__data_path, k + '.csv')
+            self.__data_list[k].download(path)
 
-col_name_list = ['VehicleType', 'DerectionTime_O']
-ascending_list = [True, False]
-working_sheet.sort(col_name_list, ascending_list).head()
+    def show_content(self):
+        return self.__data_list.keys()
 
-filter_dict = {
-    'VehicleType': [5, 31],
-    'DerectionTime_D': (pd.to_datetime('2019-08-30 08:14:00'), pd.to_datetime('2019-08-30 08:17:00')), 
-    'Gantry_O': '03F3307N',
-    'TripLength': (5, 20),
-    'TripEnd': ['Y']
-}
-test = working_sheet.search(filter_dict)[1]
-test.get()
-# db.delete('taiwan_traffic_data')
-# db.access('taiwan_traffic_data')
-# %%
+    @staticmethod
+    def generate_folder(path: str) -> None:
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return None
+
 
 # %%
