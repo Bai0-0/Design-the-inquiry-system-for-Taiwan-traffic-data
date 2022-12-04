@@ -9,9 +9,10 @@ class Data:
     def __init__(self, df: pd.DataFrame = pd.DataFrame()) -> None:
         self.__data = df.copy()
         
-        if type(self.__data.DerectionTime_O[0]) == str:
-            self.__data.DerectionTime_O = pd.to_datetime(self.__data.DerectionTime_O)
-            self.__data.DerectionTime_D = pd.to_datetime(self.__data.DerectionTime_D)
+        if not self.__data.empty:
+            if type(self.__data.DerectionTime_O[0]) == str:
+                self.__data.DerectionTime_O = pd.to_datetime(self.__data.DerectionTime_O)
+                self.__data.DerectionTime_D = pd.to_datetime(self.__data.DerectionTime_D)
     
     def sort(self, col_name_list: list, ascending_list: list):
         """Sort data

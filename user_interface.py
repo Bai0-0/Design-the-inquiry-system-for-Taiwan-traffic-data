@@ -3,7 +3,9 @@
 import PySimpleGUI as sg
 import pandas as pd
 from pandas import Timestamp
-# %%
+
+from database import Data, DataBase
+
 class UI:
 
     @staticmethod
@@ -71,7 +73,7 @@ class UI:
         self.win_userPage = sg.Window('Login Page',layout_userPage)
         self.win_homePage_active = False
 
-    def search(self, working_sheet, vals2): #working_sheet: Data 
+    def search(self, working_sheet: Data, vals2): #working_sheet: Data 
         
         self.win_homePage['-warning-'].update(visible = False)
 
@@ -80,29 +82,30 @@ class UI:
         if vals2['-CB_Vehicle-'] == True:
             print(vals2['-LB_Vehicle-'])
 
-            filter_dict['VehicleType'] = vals2['-LB_Vehicle-']
+            filter_dict['VehicleType'] = [int(x) for x in vals2['-LB_Vehicle-']]
         if vals2['-CB_TimeO-'] == True:
             filter_dict['DerectionTime_O'] = tuple(self.int_tuple_to_datetime(vals2['-From_OMin-'], vals2['-From_OSec-']),
                                                 self.int_tuple_to_datetime(vals2['-To_OMin-'], vals2['-To_OSec-']))
-        if vals2['-CB_GO-']== True:
+        if vals2['-CB_GO-'] == True:
             filter_dict['Gantry_O'] = str(vals2['-Input_GO-'])
 
-        if vals2['-CB_TimeD-']== True:
+        if vals2['-CB_TimeD-'] == True:
             filter_dict['DerectionTime_D'] = tuple(self.int_tuple_to_datetime(vals2['-From_DMin-'], vals2['-From_DSec-']),
                                                 self.int_tuple_to_datetime(vals2['-To_DMin-'], vals2['-To_DSec-']))
             
-        if vals2['-CB_GD-']== True:
+        if vals2['-CB_GD-'] == True:
             filter_dict['Gantry_D'] = str(vals2['-Input_GD-'])
 
-        if vals2['-CB_TripLen-']== True:
+        if vals2['-CB_TripLen-'] == True:
             filter_dict['TripLength'] = tuple(vals2['-Input_TripLen-'])
 
-        if vals2['-CB_TripE-']== True:
+        if vals2['-CB_TripE-'] == True:
             filter_dict['TripEnd'] = vals2['-LB_TripE-']  
 
-        print(filter_dict)
+        print(working_sheet)
 
         self.res_table = working_sheet.search(filter_dict).get()
+        print(self.res_table)
 
         if len(self.res_table) == 0: # no search result
 
@@ -154,6 +157,7 @@ class UI:
                     
 
                     if ev2 == '-Search-': #press search button
+                        print(self.working_sheet)
                         self.search(self.working_sheet, vals2)
 
                     if ev2 == 'sort':
