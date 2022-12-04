@@ -26,9 +26,9 @@ class UI:
         #header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd")
         vehicle_list = ('5','31','32','41','42')
         layout_userPage =[[sg.Text("Please enter your ID and Password:")],
-                        [sg.Text("User ID  :"), sg.Input(key = "userID")],
+                        [sg.Text("User ID:"), sg.Input(key = "userID")],
                         [sg.Text("Password :"), sg.Input(key = "pwd", password_char='*')],
-                        [sg.Button("Login"), sg.Button('Exit')]]
+                        [sg.Button("Sign In"), sg.Button('Sign Up'), sg.Button('Exit')]]
 
         frame_search =sg.Frame(title ='Search',layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
 
@@ -65,12 +65,11 @@ class UI:
                     [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]])
 
         frame_res = sg.Frame(title='Result Display', layout = [[sg.Table(k = '-res-')]] )
-        layout_homePage = [[frame_search],
+        self.layout_homePage = [[sg.Button('Back')],
+                            [frame_search],
                             [frame_res]]
 
         self.win_userPage = sg.Window('Login Page',layout_userPage)
-        self.win_homePage = sg.Window('HomePage', layout_homePage,finalize=True)
-        self.win_homePage.hide()
         self.win_homePage_active = False
 
     def search(self, working_sheet, vals2): #working_sheet: Data 
@@ -123,21 +122,17 @@ class UI:
                 break
 
             '''-------------step 1: login page manipulation-----------'''
-            if not self.win_homePage_active and ev1 == 'Login':  
-
-                # ---------------call user class , read userID and pwd-----------------
-                #(vals1["userID"], vals1["pwd"])
+            if not self.win_homePage_active and (ev1 == 'Sign In' or ev1 == 'Sign Up'):  
 
                 self.win_homePage_active = True
-                self.win_homePage.un_hide()
-                self.win_userPage.hide()
 
-                self.system.sign_up(vals1['userID'], vals1['pwd'], None)
+                # self.system.sign_up(vals1['userID'], vals1['pwd'], None)
+                # self.system.sign_in()
+
+                ## create homepage
+                self.win_homePage = sg.Window('HomePage', self.layout_homePage,finalize=True)
+                
             
-            working_sheet = self.system.database.access('taiwan_traffic_data')
-            working_sheet.search(filter_dict)
-
-
             '''---------step2: Homepage manipulation----------'''
             if self.win_homePage_active:
 
@@ -148,14 +143,16 @@ class UI:
                     '''-----------------Search frame---------------------'''
 
                     if ev2 == '-Search-': #press search button
-                        
+                        working_sheet = self.system.database.access('taiwan_traffic_data')
+
                         self.search(working_sheet, vals2)
 
 
-                    if ev2 == sg.WIN_CLOSED or ev2 == 'Exit'  or ev2 == None: #Close homepage and back to login page
+                    if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
                         win_homePage_active  = False
                         self.win_homePage.close()
-                        self.win_userPage.un_hide()  #back to login page
+
+                        #self.win_userPage.un_hide()  #back to login page
         
         self.win_userPage.close()
         print("End")
