@@ -69,5 +69,5 @@ if __name__ == '__main__':
     ub.sign_in('CZZ', 476)
     ub.sign_in('XYS', 476)
     ub.save_to_local()
-    print(ub._UserBase__account_info)
+    test = ub._UserBase__account_info.values.tolist()
 # %%
