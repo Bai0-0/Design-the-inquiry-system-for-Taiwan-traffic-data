@@ -8,6 +8,8 @@ class Data:
 
     def __init__(self, df: pd.DataFrame = pd.DataFrame()) -> None:
         self.__data = df.copy()
+        self.__data.reset_index(drop = True, inplace=True)
+
         
         if not self.__data.empty:
             if type(self.__data.DerectionTime_O[0]) == str:

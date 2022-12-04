@@ -56,7 +56,8 @@ class UI:
                     [sg.Text('*ID of the vehicle to arrive the last station')],
 
                     #col6
-                    [sg.Checkbox('TripLength', k='-CB_TripLen-'),sg.Input(key = '-Input_TripLen-',size = [10,1])],
+                    [sg.Checkbox('TripLength', k='-CB_TripLen-'),sg.Input(key = '-Input_TripLen1-',size = [6,1]), 
+                                sg.Text(':'),sg.Input(key = '-Input_TripLen2-',size = [6,1])],
                     [sg.Text('*Travel distance')],
 
                     #col7
@@ -80,47 +81,45 @@ class UI:
         filter_dict = { }
 
         if vals2['-CB_Vehicle-'] == True:
-            print(filter_dict)
+            
             filter_dict['VehicleType'] = [int(x) for x in vals2['-LB_Vehicle-']]
         
         if vals2['-CB_TimeO-'] == True:
-            filter_dict['DerectionTime_O'] = tuple(self.int_tuple_to_datetime(vals2['-From_OMin-'], vals2['-From_OSec-']),
+            filter_dict['DerectionTime_O'] = (self.int_tuple_to_datetime(vals2['-From_OMin-'], vals2['-From_OSec-']),
                                                 self.int_tuple_to_datetime(vals2['-To_OMin-'], vals2['-To_OSec-']))
         if vals2['-CB_GO-'] == True:
             filter_dict['Gantry_O'] = str(vals2['-Input_GO-'])
 
         if vals2['-CB_TimeD-'] == True:
-            filter_dict['DerectionTime_D'] = tuple(self.int_tuple_to_datetime(vals2['-From_DMin-'], vals2['-From_DSec-']),
+            filter_dict['DerectionTime_D'] = (self.int_tuple_to_datetime(vals2['-From_DMin-'], vals2['-From_DSec-']),
                                                 self.int_tuple_to_datetime(vals2['-To_DMin-'], vals2['-To_DSec-']))
             
         if vals2['-CB_GD-'] == True:
             filter_dict['Gantry_D'] = str(vals2['-Input_GD-'])
 
         if vals2['-CB_TripLen-'] == True:
-            filter_dict['TripLength'] = tuple(vals2['-Input_TripLen-'])
+            filter_dict['TripLength'] = (float(vals2['-Input_TripLen1-']),float(vals2['-Input_TripLen2-']))
 
         if vals2['-CB_TripE-'] == True:
             filter_dict['TripEnd'] = vals2['-LB_TripE-']  
 
-        self.res_table = working_sheet.search(filter_dict).get()
-        print(self.res_table)
-
-        if len(self.res_table) == 0: # no search result
+        res_table = working_sheet.search(filter_dict).get()
+       
+        if len(res_table) == 0: # no search result
 
             self.win_homePage['-warning-'].update(visible = True) #show warning message
             self.win_homePage['-res-'].update([[0]])
 
         else:
 
-            self.res_table['DerectionTime_D'] = self.res_table['DerectionTime_D'].astype(str)
-            self.res_table['DerectionTime_O'] = self.res_table['DerectionTime_O'].astype(str)
-            temp = self.res_table.copy()
+            res_table['DerectionTime_D'] = res_table['DerectionTime_D'].astype(str)
+            res_table['DerectionTime_O'] = res_table['DerectionTime_O'].astype(str)
 
             num_row = int(vals2['-Input_head-'])
-            temp = temp.head(num_row)
-            temp = temp.values.tolist()
+            res_table = res_table.head(num_row)
+            res_table = res_table.values.tolist()
 
-            self.win_homePage['-res-'].update(temp)
+            self.win_homePage['-res-'].update(res_table)
             self.win_homePage['-warning-'].update(visible = False)
     
     def run(self): 
