@@ -3,8 +3,10 @@
 import PySimpleGUI as sg
 import pandas as pd
 from pandas import Timestamp
-
 from database import Data, DataBase
+import copy
+# from system import System
+
 
 class UI:
 
@@ -23,13 +25,17 @@ class UI:
     def __init__(self, system) -> None: #system:System obj
         self.system = system
     
-        '''Layout design'''
+        '''-------------Layout design-------------------'''
+
         header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation')
         vehicle_list = ('5','31','32','41','42')
         layout_userPage =[[sg.Text("Please enter your ID and Password:")],
-                        [sg.Text("User ID:"), sg.Input(key = "userID")],
-                        [sg.Text("Password :"), sg.Input(key = "pwd", password_char='*')],
-                        [sg.Button("Sign In"), sg.Button('Sign Up'), sg.Button('Exit')]]
+                        [sg.Text("User ID:")],
+                        [sg.Input(key = "userID")],
+                        [sg.Text("Password:")],
+                        [sg.Input(key = "pwd", password_char='*')],
+                        [sg.Button("Sign Up"), sg.Button('Log In'), sg.Button('Exit')],
+                        [sg.Text('Sucessfully sign up, please log in', k = '-end_signup-', text_color = 'red', visible=False), sg.Text(' ',k = '-warn_user-', text_color='red')]]
 
         frame_search =sg.Frame(title ='Search',layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
 
@@ -74,8 +80,7 @@ class UI:
         self.win_userPage = sg.Window('Login Page',layout_userPage)
         self.win_homePage_active = False
 
-    def search(self, working_sheet: Data, vals2): #working_sheet: Data 
-        
+    def search(self, working_sheet: Data, vals2): 
         self.win_homePage['-warning-'].update(visible = False)
 
         filter_dict = { }
@@ -105,7 +110,7 @@ class UI:
 
         res_table = working_sheet.search(filter_dict).get()
        
-        if len(res_table) == 0: # no search result
+        if len(res_table) == 0: # empty search result
 
             self.win_homePage['-warning-'].update(visible = True) #show warning message
             self.win_homePage['-res-'].update([[0]])
@@ -128,46 +133,63 @@ class UI:
         while True:
             ev1, vals1 = self.win_userPage.read()
 
-            
             if ev1 == sg.WIN_CLOSED or ev1 == 'Exit' or ev1 == None:
                 break
 
             '''-------------step 1: login page manipulation-----------'''
-            if not self.win_homePage_active and (ev1 == 'Sign In' or ev1 == 'Sign Up'):  
+            if ev1 == 'Sign Up':
+                # not self.win_homePage_active and 
+                self.win_userPage['-warn_user-'].update('')
+                self.system.userbase.sign_up(vals1['userID'],vals1['pwd'])
+                self.win_userPage['-end_signup-'].update(visible = True)
 
-                self.win_homePage_active = True
-                self.win_userPage.hide()
+            if  ev1 == 'Log In' : 
+                #not self.win_homePage_active and
 
-                # self.system.sign_up(vals1['userID'], vals1['pwd'], None)
-                # self.system.sign_in()
+                self.win_userPage['-end_signup-'].update(visible = False)  
+                print('invisible end sign up')
 
-                ## create homepage
-                self.win_homePage = sg.Window('HomePage', self.layout_homePage,finalize=True)
-                self.working_sheet = self.system.database.access('taiwan_traffic_data') 
+                temp = self.system.userbase.sign_in(vals1['userID'],vals1['pwd'])
 
-                 
-            
+                if temp[0] is False:  # (False, message)
+
+                    self.win_userPage['-warn_user-'].update(temp[1])
+
+                else: #sucessfully log in
+
+                    #create home page
+                    self.win_homePage_active = True
+                    temp_layout = copy.deepcopy(self.layout_homePage)
+                    
+                    self.win_homePage = sg.Window('HomePage', temp_layout, finalize=True)
+                    self.working_sheet = self.system.database.access('taiwan_traffic_data') 
+                    
+                    #hide user page
+                    self.win_userPage.hide()
+                    self.win_userPage['-warn_user-'].update(' ')
+                               
+           
             '''---------step 3: Homepage manipulation----------'''
-            if self.win_homePage_active:
+            
 
-                while self.win_homePage_active == True:
+            while self.win_homePage_active == True:
+            
+                ev2, vals2 = self.win_homePage.read()
                 
-                    ev2, vals2 = self.win_homePage.read()
-                    
-                    '''-----------------Search frame---------------------'''
-                    
+                '''-----------------Search frame---------------------'''
+                
 
-                    if ev2 == '-Search-': #press search button
-                        self.search(self.working_sheet, vals2)
+                if ev2 == '-Search-': #press search button
+                    self.search(self.working_sheet, vals2)
 
-                    if ev2 == 'sort':
-                        pass
+                if ev2 == 'sort':
+                    pass
 
-                    if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
-                        win_homePage_active  = False
-                        self.win_homePage.close()
-
-                        self.win_userPage.un_hide()  #back to login page
+                if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
+                    win_homePage_active  = False
+                    self.win_homePage.close()
+                    self.win_userPage.un_hide()  #back to login page
+                    break
         
         self.win_userPage.close()
         print("End")
