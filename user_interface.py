@@ -37,7 +37,13 @@ class UI:
                         [sg.Button("Sign Up"), sg.Button('Log In'), sg.Button('Exit')],
                         [sg.Text('Sucessfully sign up, please log in', k = '-end_signup-', text_color = 'red', visible=False), sg.Text(' ',k = '-warn_user-', text_color='red')]]
 
-        frame_search =sg.Frame(title ='Search',layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
+        layout_dashboardPage = [[sg.Text('Welcome to our System!')],
+                        [sg.Button("Add Sheet", key = 'Action_add')],
+                        [sg.Button('Delete Sheet', key = 'Action_delete')],
+                        [sg.Button('Access Sheet', key = 'Action_access')],
+                        [sg.Button('Log out', key = 'Log_out')]]
+
+        frame_search =sg.Frame(title ='Search',font = ("Helvetica", 20),layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
 
                     #Column 1 
                     [sg.Checkbox('VehicleType', k='-CB_Vehicle-'),sg.Listbox(size=(10,5),values = vehicle_list, select_mode = 'multiple',key = "-LB_Vehicle-")],
@@ -72,9 +78,21 @@ class UI:
                     [sg.Text('Number of entry to show:'),sg.Input(default_text = '20',k = '-Input_head-',size=[7,1]), sg.Button('SEARCH',key = "-Search-"),], 
                     [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]])
 
+        frame_sort =sg.Frame(title ='Sort',layout =[
+            [sg.Text('Select columns and order to sort:')],
+            [sg.Text('Select the first columns to sort:'),sg.Combo(values=header,key='-Sort_Col_1-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_1-')],
+            [sg.Text('Select the second columns to sort:'),sg.Combo(values=header,key='-Sort_Col_2-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_2-')],
+            [sg.Text('Select the third columns to sort:'),sg.Combo(values=header,key='-Sort_Col_3-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_3-')],
+            [sg.Text('Select the fourth columns to sort:'),sg.Combo(values=header,key='-Sort_Col_4-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_4-')],
+            [sg.Text('Select the fifth columns to sort:'),sg.Combo(values=header,key='-Sort_Col_5-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_5-')],
+            [sg.Text('Select the sixth columns to sort:'),sg.Combo(values=header,key='-Sort_Col_6-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_6-')],
+            [sg.Text('Select the seventh columns to sort:'),sg.Combo(values=header,key='-Sort_Col_7-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_7-')],
+            [sg.Button('Sort', key = '-Sort-')],
+            [sg.Text(k='search_output_list')]])
+       
         frame_res = sg.Frame(title='Result Display', layout = [[sg.Table([[0,0,0,0,0,0,0,0]], headings = header,num_rows = 10,k = '-res-')]])
-        self.layout_homePage = [[sg.Button('Back')],
-                            [frame_search],
+        self.layout_homePage = [[sg.Text('Inquiry System for Taiwan Traffic Data', justification='center', font = ("Helvetica", 38), relief=sg.RELIEF_RIDGE)],[sg.Button('Back')],
+                            [frame_search, frame_sort],
                             [frame_res]]
 
         self.win_userPage = sg.Window('Login Page',layout_userPage)
@@ -115,6 +133,41 @@ class UI:
             self.win_homePage['-warning-'].update(visible = True) #show warning message
             self.win_homePage['-res-'].update([[0]])
 
+        else:
+
+            res_table['DerectionTime_D'] = res_table['DerectionTime_D'].astype(str)
+            res_table['DerectionTime_O'] = res_table['DerectionTime_O'].astype(str)
+
+            num_row = int(vals2['-Input_head-'])
+            res_table = res_table.head(num_row)
+            res_table = res_table.values.tolist()
+
+            self.win_homePage['-res-'].update(res_table)
+            self.win_homePage['-warning-'].update(visible = False)
+    
+    def sort(self, working_sheet: Data, vals2): #working_sheet: Data 
+        self.win_homePage['-warning-'].update(visible = False)
+        
+        ascending_order = []
+        col_name = []
+        
+        for i in range(1,8):
+            col = f'-Sort_Col_{i}-'
+            sort_order = f'-Sorting_Order_{i}-'
+            if vals2[col]:
+                col_name.append(vals2[col])
+                if len(vals2[sort_order])>0:
+                    ascending_order.append(False if vals2[sort_order][0] == 'Dscending' else True)
+                else:
+                    ascending_order.append(True)
+                    
+        res_table = working_sheet.sort(col_name, ascending_order).get()
+        
+        if len(res_table) == 0: # no search result
+
+            self.win_homePage['-warning-'].update(visible = True) #show warning message
+            self.win_homePage['-res-'].update([[0]])
+            
         else:
 
             res_table['DerectionTime_D'] = res_table['DerectionTime_D'].astype(str)
@@ -175,14 +228,13 @@ class UI:
             
                 ev2, vals2 = self.win_homePage.read()
                 
-                '''-----------------Search frame---------------------'''
-                
 
                 if ev2 == '-Search-': #press search button
                     self.search(self.working_sheet, vals2)
 
-                if ev2 == 'sort':
-                    pass
+                # if ev2 == '-sort-':
+
+                #     self.sort(self.working_sheet, vals2)
 
                 if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
                     self.win_homePage_active  = False
