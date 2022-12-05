@@ -23,7 +23,7 @@ class System:
         self.userbase = UserBase(lib_path)
         self.database = DataBase(data_path)
 
-        # self.database.add(join(self.test_path, 'TDCS_M06A_20190830_080000.csv'), 'taiwan_traffic_data')
+        self.database.add(join(self.test_path, 'TDCS_M06A_20190830_080000.csv'), 'taiwan_traffic_data')
         self.user_interface = UI(self)
         self.user_interface.run()
 

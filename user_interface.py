@@ -193,8 +193,8 @@ class UI:
                 break
 
             '''-------------step 1: login page manipulation-----------'''
-            
             if not self.win_dashboardPage_active and ev1 == 'Sign Up':
+                print(vals1['userID'], vals1['pwd'])
                 self.win_userPage['-warn_user-'].update('')
                 self.system.userbase.sign_up(vals1['userID'],vals1['pwd'])
                 self.win_userPage['-end_signup-'].update(visible = True)
@@ -233,7 +233,7 @@ class UI:
                                 
                                 self.origin_sheet = self.system.database.access(data_sheet) 
                                 self.res_table = Data(self.origin_sheet.get().copy())
-                                sg.popup('Access Data: taiwan_tradffic_data!')
+                                sg.popup(f'Access Data: {data_sheet}!')
                                 
                                 self.win_homePage_active = True
                                 self.win_dashboardPage.hide()
@@ -272,7 +272,7 @@ class UI:
                         elif ev3 == '-Action_add-':
                             file_path = vals3['-Input_Path-']
                             file_name = vals3['-Input_Name-']
-                            self.system.database.add(join(self.system.test_path, file_path),file_name)
+                            self.system.database.add(file_path,file_name)
                             sg.popup(f'Successfully add sheet: {file_name}')
                             
                             
@@ -301,4 +301,3 @@ class UI:
     
 
     
-# %%
