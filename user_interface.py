@@ -28,6 +28,10 @@ class UI:
     
         '''-------------Layout design-------------------'''
 
+        # sg.theme('Reddit')
+        # sg.theme('default')
+        sg.theme('SystemDefault1')
+
         header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation')
         header_sort = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation', '/')
         vehicle_list = ('5','31','32','41','42')
@@ -40,7 +44,7 @@ class UI:
                         [sg.Button("Sign Up"), sg.Button('Log In'), sg.Button('Exit')],
                         [sg.Text('Sucessfully sign up, please log in', k = '-end_signup-', text_color = 'red', visible=False), sg.Text(' ',k = '-warn_user-', text_color='red')]]
 
-        frame_search =sg.Frame(title ='Search', font = ("Helvetica", 15), size = [700,570],layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
+        frame_search =sg.Frame(title ='Search', font = ("Helvetica", 15), size = [700,570],layout =[[sg.Text('Select columns and input corresponding keywords to search:', font = ("Helvetica", 12))],
 
                     #Column 1 
                     [sg.Checkbox('VehicleType', k='-CB_Vehicle-'),sg.Listbox(size=(10,5),values = vehicle_list, select_mode = 'multiple',key = "-LB_Vehicle-")],
@@ -77,8 +81,8 @@ class UI:
 
         
         
-        frame_sort =sg.Frame(title ='Sort',font = ("Helvetica", 15), size = [700,570], element_justification = 'center', layout =[
-            [sg.Text('Select columns and order to sort:')],
+        frame_sort =sg.Frame(title ='Sort',font = ("Helvetica", 15), size = [500,570], element_justification = 'left', layout =[
+            [sg.Text('Select columns and order to sort:',font = ("Helvetica", 12))],
             [sg.Text('Select the first columns to sort:')],
             [sg.Combo(values=header_sort,key='-Sort_Col_1-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_1-')],
             [sg.Text('Select the second columns to sort:')],
@@ -95,12 +99,12 @@ class UI:
        
         layout_res = [[sg.Text('Number of entry to show:'), sg.Input(default_text = '20',k = '-Input_head-',size=[7,1]), 
                         sg.Button('Display', k = '-display-'), sg.Button('Reset', k = '-clear-')],
-                        [sg.Table([[0]], headings = header, num_rows = 20, k = '-res-')]]
+                        [sg.Table([[0]], headings = header, num_rows = 20, size = [1150, 30], expand_x = True, expand_y = True, justification='center', k = '-res-')]]
 
-        frame_res = sg.Frame(title='Result Display',  font = ("Helvetica", 15),size = [1410,250],layout = layout_res)
+        frame_res = sg.Frame(title='Result Display',  font = ("Helvetica", 15),size = [1210,330],layout = layout_res)
 
-        self.layout_homePage = [[sg.Text('Inquiry System for Taiwan Traffic Data', justification='center', font = ("Helvetica", 25), size = [1410,1], relief=sg.RELIEF_RIDGE)],
-                            [sg.Button('Back', size = [6,1])],
+        self.layout_homePage = [[sg.Text('Inquiry System for Taiwan Traffic Data',  font = ("Helvetica", 25), expand_x = True, justification = 'center', relief=sg.RELIEF_RIDGE)],
+                            [sg.Button('Back', size = [7,1])],
                             [frame_search, frame_sort],
                             [frame_res]]
         self.layout_dashboardPage = [[sg.Text('Welcome to our System!')],
@@ -110,7 +114,7 @@ class UI:
                         [sg.Text('choose file to delete')],[sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Delete-', enable_events=True), sg.Button('Delete Sheet', key = '-Action_delete-')],
                         [sg.Button('Log out', key = '-Log_out-')]]
         
-        self.win_userPage = sg.Window('Login Page',layout_userPage)
+        self.win_userPage = sg.Window('Login Page', layout = layout_userPage)
         self.win_homePage_active = False
         self.win_dashboardPage_active = False
 
@@ -301,7 +305,7 @@ class UI:
                             self.win_dashboardPage['-Sheet_To_Delete-'].update(values =list(self.system.database.show_content())  )
                             self.win_dashboardPage['-Sheet_To_Access-'].update(values =list(self.system.database.show_content())  )
                         
-                        elif ev3 == '-Log_out-':
+                        elif ev3 == '-Log_out-' or ev3 == sg.WIN_CLOSED or ev3== None:
                             self.win_dashboardPage_active = False
                             self.win_dashboardPage.close()
                             self.win_userPage.un_hide()  #back to login page
