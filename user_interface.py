@@ -137,17 +137,16 @@ class UI:
                 break
 
             '''-------------step 1: login page manipulation-----------'''
-            if ev1 == 'Sign Up':
-                # not self.win_homePage_active and 
+            if not self.win_homePage_active and ev1 == 'Sign Up':
+                #  
                 self.win_userPage['-warn_user-'].update('')
                 self.system.userbase.sign_up(vals1['userID'],vals1['pwd'])
                 self.win_userPage['-end_signup-'].update(visible = True)
 
-            if  ev1 == 'Log In' : 
-                #not self.win_homePage_active and
+            if  not self.win_homePage_active and ev1 == 'Log In' : 
+                
 
                 self.win_userPage['-end_signup-'].update(visible = False)  
-                print('invisible end sign up')
 
                 temp = self.system.userbase.sign_in(vals1['userID'],vals1['pwd'])
 
@@ -186,7 +185,7 @@ class UI:
                     pass
 
                 if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
-                    win_homePage_active  = False
+                    self.win_homePage_active  = False
                     self.win_homePage.close()
                     self.win_userPage.un_hide()  #back to login page
                     break
