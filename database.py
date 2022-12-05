@@ -134,8 +134,10 @@ class DataBase:
         """
         if sheet_name in self.__data_list:
             self.__data_list.pop(sheet_name)
+            return True
         else:
-            print('Data sheet does not exist in the database.')
+            return False
+            print()
 
     def save_to_local(self):
         shutil.rmtree(self.__data_path)
