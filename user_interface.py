@@ -29,8 +29,8 @@ class UI:
         '''-------------Layout design-------------------'''
 
         # sg.theme('Reddit')
-        # sg.theme('default')
-        sg.theme('SystemDefault1')
+        sg.theme('default')
+        # sg.theme('SystemDefault1')
 
         header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation')
         header_sort = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation', '/')
@@ -75,9 +75,10 @@ class UI:
 
                     #col7
                     [sg.Checkbox('TripEnd', k='-CB_TripE-'), sg.Listbox(values = ('Y','N'),size = [5,2],select_mode = 'multiple',key = "-LB_TripE-")],
+                    [sg.Button('SEARCH',key = "-Search-",size = [7,1])],
+                    [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]
 
-                    [sg.Button('SEARCH',key = "-Search-",size = [7,1])], 
-                    [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]])
+                    ])
 
         
         
