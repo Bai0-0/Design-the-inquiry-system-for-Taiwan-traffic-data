@@ -29,7 +29,9 @@ class UI:
         '''-------------Layout design-------------------'''
 
         header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation')
+        header_sort = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation', '/')
         vehicle_list = ('5','31','32','41','42')
+
         layout_userPage =[[sg.Text("Please enter your ID and Password:")],
                         [sg.Text("User ID:")],
                         [sg.Input(key = "userID")],
@@ -38,15 +40,15 @@ class UI:
                         [sg.Button("Sign Up"), sg.Button('Log In'), sg.Button('Exit')],
                         [sg.Text('Sucessfully sign up, please log in', k = '-end_signup-', text_color = 'red', visible=False), sg.Text(' ',k = '-warn_user-', text_color='red')]]
 
-        frame_search =sg.Frame(title ='Search',font = ("Helvetica", 20),layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
+        frame_search =sg.Frame(title ='Search', font = ("Helvetica", 15), size = [700,570],layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
 
                     #Column 1 
                     [sg.Checkbox('VehicleType', k='-CB_Vehicle-'),sg.Listbox(size=(10,5),values = vehicle_list, select_mode = 'multiple',key = "-LB_Vehicle-")],
                     [sg.Text('*5-semi-trailer truck, 31-minibus, 32-van, 41-large van, 42-large truck')],
 
                     #Column 2
-                    [sg.Checkbox('DerectionTime_O', k='-CB_TimeO-'), sg.Text("From 2019-08-30 08:"), sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-From_OMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-From_OSec-'),
-                    sg.Text('To 2019-08-30 08:'), sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-To_OMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-To_OSec-')],
+                    [sg.Checkbox('DerectionTime_O', k='-CB_TimeO-'), sg.Text("From 2019-08-30 08:"), sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-From_OMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-From_OSec-'),
+                    sg.Text('To 2019-08-30 08:'), sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-To_OMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-To_OSec-')],
                     [sg.Text('*Time for the vehicle to arrive the first station')],
                 
                     #Col 3
@@ -54,8 +56,8 @@ class UI:
                     [sg.Text('*ID of the vehicle to arrive the first station')],
 
                     #col4
-                    [sg.Checkbox('DerectionTime_D', k='-CB_TimeD-'), sg.Text("From 2019-08-30 08:"), sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-From_DMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-From_DSec-'),
-                    sg.Text('To 2019-08-30 08:'), sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-To_DMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(61)],size =(5,5), key = '-To_DSec-')],
+                    [sg.Checkbox('DerectionTime_D', k='-CB_TimeD-'), sg.Text("From 2019-08-30 08:"), sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-From_DMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-From_DSec-'),
+                    sg.Text('To 2019-08-30 08:'), sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-To_DMin-'),sg.Text(':'),sg.Combo(values=[i for i in range(60)],size =(5,5), key = '-To_DSec-')],
                     [sg.Text('*Time for the vehicle to arrive the last station')],
 
                     #col5
@@ -70,36 +72,42 @@ class UI:
                     #col7
                     [sg.Checkbox('TripEnd', k='-CB_TripE-'), sg.Listbox(values = ('Y','N'),size = [5,2],select_mode = 'multiple',key = "-LB_TripE-")],
 
-                    [sg.Button('SEARCH',key = "-Search-")], 
+                    [sg.Button('SEARCH',key = "-Search-",size = [7,1])], 
                     [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]])
 
-        header_sort = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation', '/')
         
-        frame_sort =sg.Frame(title ='Sort',font = ('Helvetica', 20), layout =[
+        
+        frame_sort =sg.Frame(title ='Sort',font = ("Helvetica", 15), size = [700,570], element_justification = 'center', layout =[
             [sg.Text('Select columns and order to sort:')],
-            [sg.Text('Select the first columns to sort:'),sg.Combo(values=header_sort,key='-Sort_Col_1-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_1-')],
-            [sg.Text('Select the second columns to sort:'),sg.Combo(values=header_sort,key='-Sort_Col_2-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_2-')],
-            [sg.Text('Select the third columns to sort:'),sg.Combo(values=header_sort,key='-Sort_Col_3-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_3-')],
-            [sg.Text('Select the fourth columns to sort:'),sg.Combo(values=header_sort,key='-Sort_Col_4-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_4-')],
-            [sg.Text('Select the fifth columns to sort:'),sg.Combo(values=header_sort,key='-Sort_Col_5-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_5-')],
-            [sg.Text('Select the sixth columns to sort:'),sg.Combo(values=header_sort,key='-Sort_Col_6-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_6-')],
-            [sg.Text('Select the seventh columns to sort:'),sg.Combo(values=header_sort,key='-Sort_Col_7-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_7-')],
-            [sg.Button('Sort', key = '-Sort-')],
+            [sg.Text('Select the first columns to sort:')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_1-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_1-')],
+            [sg.Text('Select the second columns to sort:')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_2-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_2-')],
+            [sg.Text('Select the third columns to sort:')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_3-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_3-')],
+            [sg.Text('Select the fourth columns to sort:')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_4-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_4-')],
+            [sg.Text('Select the fifth columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_5-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_5-')],
+            [sg.Text('Select the sixth columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_6-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_6-')],
+            [sg.Text('Select the seventh columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_7-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_7-')],
+            [sg.Button('SORT', key = '-Sort-',size = [7,1])],
             [sg.Text(k='search_output_list')]])
        
         layout_res = [[sg.Text('Number of entry to show:'), sg.Input(default_text = '20',k = '-Input_head-',size=[7,1]), 
-                        sg.Button('Display', k = '-display-'), sg.Button('Clear', k = '-clear-')],
+                        sg.Button('Display', k = '-display-'), sg.Button('Reset', k = '-clear-')],
                         [sg.Table([[0]], headings = header, num_rows = 20, k = '-res-')]]
 
-        frame_res = sg.Frame(title='Result Display', layout = layout_res )
-        self.layout_homePage = [[sg.Text('Inquiry System for Taiwan Traffic Data', justification='center', font = ("Helvetica", 38), relief=sg.RELIEF_RIDGE)],[sg.Button('Back')],
+        frame_res = sg.Frame(title='Result Display',  font = ("Helvetica", 15),size = [1410,250],layout = layout_res)
+
+        self.layout_homePage = [[sg.Text('Inquiry System for Taiwan Traffic Data', justification='center', font = ("Helvetica", 25), size = [1410,1], relief=sg.RELIEF_RIDGE)],
+                            [sg.Button('Back', size = [6,1])],
                             [frame_search, frame_sort],
                             [frame_res]]
         self.layout_dashboardPage = [[sg.Text('Welcome to our System!')],
                         [sg.Text(f'current working directory: {self.system.test_path}')],
                         [sg.Text('file path'),sg.InputText(key = '-Input_Path-'),sg.Text('filename in database'), sg.InputText(key = '-Input_Name-'),sg.Button("Add Sheet", key = '-Action_add-')],
-                        [sg.Text('choose file to delete'),sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Delete-', enable_events=True), sg.Button('Delete Sheet', key = '-Action_delete-')],
-                        [sg.Text('Current sheets in database'), sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Access-', enable_events=True), sg.Button('Access Sheet', key = '-Action_access-')],
+                        [sg.Text('Current sheets in database')],[sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Access-', enable_events=True), sg.Button('Access Sheet', key = '-Action_access-')],
+                        [sg.Text('choose file to delete')],[sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Delete-', enable_events=True), sg.Button('Delete Sheet', key = '-Action_delete-')],
                         [sg.Button('Log out', key = '-Log_out-')]]
         
         self.win_userPage = sg.Window('Login Page',layout_userPage)
@@ -140,6 +148,8 @@ class UI:
         if vals2['-CB_TripE-'] == True:
             filter_dict['TripEnd'] = vals2['-LB_TripE-']  
 
+        self.res_table = Data(self.origin_sheet.get().copy())  # reset self.res_table
+
         self.res_table = self.res_table.search(filter_dict)
        
         self.display(int(vals2['-Input_head-']))
@@ -165,7 +175,7 @@ class UI:
                       
     def display(self, num_row: int):
 
-        self.res_table_data = self.res_table.get()
+        self.res_table_data = self.res_table.get().copy()
         
         if len(self.res_table_data) == 0: # empty search result
 
@@ -301,3 +311,4 @@ class UI:
     
 
     
+# %%

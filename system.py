@@ -6,7 +6,6 @@ import pandas as pd
 from database import DataBase
 from userbase import UserBase
 from user_interface import UI
-# from search import UI_cls as UI
 
 
 class System:
@@ -42,5 +41,6 @@ class System:
 if __name__ == '__main__':
     system = System()
 
+s# %%
 
 # %%
