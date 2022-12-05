@@ -45,7 +45,7 @@ class UserBase:
         if uid in set(self.__account_info.uid):
             pw_list = list(self.__account_info.loc[self.__account_info.uid == uid, 'password'])
             if pw in pw_list:
-                return (True, ' ')
+                return (True, '')
             else:
                 print('Incorrect Password.')
                 return (False, 'Incorrect Password.')
@@ -63,6 +63,7 @@ if __name__ == '__main__':
     root_path = dirname(abspath(__file__))
     lib_path = join(root_path, 'lib')
     ub = UserBase(lib_path)
+    ub.sign_in('1', 476)
     ub.sign_up('123', 123)
     ub.sign_up('CZZ', 456)
     print(ub.sign_in('CZZ', 456))
