@@ -9,6 +9,7 @@ class UserBase:
         self.user_file_path = os.path.join(lib_path, 'account_info.csv')
         if os.path.exists(self.user_file_path):
             self.__account_info = pd.read_csv(self.user_file_path, index_col=0)
+            self.__account_info = self.__account_info.astype(str)
             self.__account_info.reset_index(drop=True, inplace=True)
         else:
             self.__account_info = pd.DataFrame(columns=['uid', 'password'])
@@ -40,12 +41,12 @@ class UserBase:
             pw (str): password
 
         Returns:
-            tuple: (True) for success, (False, Error) for failure
+            tuple: (True, '') for success, (False, Error) for failure
         """
         if uid in set(self.__account_info.uid):
             pw_list = list(self.__account_info.loc[self.__account_info.uid == uid, 'password'])
             if pw in pw_list:
-                return (True, ' ')
+                return (True, '')
             else:
                 print('Incorrect Password.')
                 return (False, 'Incorrect Password.')
@@ -56,6 +57,7 @@ class UserBase:
     def save_to_local(self):
         if os.path.exists(self.user_file_path):
             os.remove(self.user_file_path)
+        self.__account_info = self.__account_info.astype(str)
         self.__account_info.to_csv(self.user_file_path)
 
 
