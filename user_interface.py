@@ -193,7 +193,8 @@ class UI:
                 break
 
             '''-------------step 1: login page manipulation-----------'''
-            if not self.win_dashboardPage_active and ev1 == 'Sign up':
+            
+            if not self.win_dashboardPage_active and ev1 == 'Sign Up':
                 self.win_userPage['-warn_user-'].update('')
                 self.system.userbase.sign_up(vals1['userID'],vals1['pwd'])
                 self.win_userPage['-end_signup-'].update(visible = True)
@@ -300,3 +301,4 @@ class UI:
     
 
     
+# %%
