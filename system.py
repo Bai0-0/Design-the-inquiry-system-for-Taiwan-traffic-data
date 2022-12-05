@@ -16,14 +16,14 @@ class System:
         root_path = dirname(abspath(__file__))
         lib_path = join(root_path, 'lib')
         data_path = join(root_path, 'lib', 'data')
-        test_path = join(root_path, 'test')
+        self.test_path = join(root_path, 'test')
         self.generate_folder(lib_path)
         self.generate_folder(data_path)
 
         self.userbase = UserBase(lib_path)
         self.database = DataBase(data_path)
 
-        self.database.add(join(test_path, 'TDCS_M06A_20190830_080000.csv'), 'taiwan_traffic_data')
+        self.database.add(join(self.test_path, 'TDCS_M06A_20190830_080000.csv'), 'taiwan_traffic_data')
         self.user_interface = UI(self)
         self.user_interface.run()
 

@@ -5,6 +5,7 @@ import pandas as pd
 from pandas import Timestamp
 from database import Data, DataBase
 import copy
+from os.path import dirname, abspath, join
 # from system import System
 
 
@@ -36,12 +37,6 @@ class UI:
                         [sg.Input(key = "pwd", password_char='*')],
                         [sg.Button("Sign Up"), sg.Button('Log In'), sg.Button('Exit')],
                         [sg.Text('Sucessfully sign up, please log in', k = '-end_signup-', text_color = 'red', visible=False), sg.Text(' ',k = '-warn_user-', text_color='red')]]
-
-        layout_dashboardPage = [[sg.Text('Welcome to our System!')],
-                        [sg.Button("Add Sheet", key = 'Action_add')],
-                        [sg.Button('Delete Sheet', key = 'Action_delete')],
-                        [sg.Button('Access Sheet', key = 'Action_access')],
-                        [sg.Button('Log out', key = 'Log_out')]]
 
         frame_search =sg.Frame(title ='Search',font = ("Helvetica", 20),layout =[[sg.Text('Select columns and input corresponding keywords to search:')],
 
@@ -100,9 +95,16 @@ class UI:
         self.layout_homePage = [[sg.Text('Inquiry System for Taiwan Traffic Data', justification='center', font = ("Helvetica", 38), relief=sg.RELIEF_RIDGE)],[sg.Button('Back')],
                             [frame_search, frame_sort],
                             [frame_res]]
-
+        self.layout_dashboardPage = [[sg.Text('Welcome to our System!')],
+                        [sg.Text(f'current working directory: {self.system.test_path}')],
+                        [sg.Text('file path'),sg.InputText(key = '-Input_Path-'),sg.Text('filename in database'), sg.InputText(key = '-Input_Name-'),sg.Button("Add Sheet", key = '-Action_add-')],
+                        [sg.Text('choose file to delete'),sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Delete-', enable_events=True), sg.Button('Delete Sheet', key = '-Action_delete-')],
+                        [sg.Text('Current sheets in database'), sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Access-', enable_events=True), sg.Button('Access Sheet', key = '-Action_access-')],
+                        [sg.Button('Log out', key = '-Log_out-')]]
+        
         self.win_userPage = sg.Window('Login Page',layout_userPage)
         self.win_homePage_active = False
+        self.win_dashboardPage_active = False
 
     def search(self, vals2): 
 
@@ -179,7 +181,8 @@ class UI:
 
             self.win_homePage['-res-'].update(temp)
             self.win_homePage['-warning-'].update(visible = False)
-
+    
+    
     def run(self): 
         
 
@@ -190,15 +193,13 @@ class UI:
                 break
 
             '''-------------step 1: login page manipulation-----------'''
-            if not self.win_homePage_active and ev1 == 'Sign Up':
-                #  
+            if not self.win_dashboardPage_active and ev1 == 'Sign up':
                 self.win_userPage['-warn_user-'].update('')
                 self.system.userbase.sign_up(vals1['userID'],vals1['pwd'])
                 self.win_userPage['-end_signup-'].update(visible = True)
-
-            if  not self.win_homePage_active and ev1 == 'Log In' : 
                 
-
+                
+            if not self.win_dashboardPage_active and ev1 == 'Log In':
                 self.win_userPage['-end_signup-'].update(visible = False)  
 
                 temp = self.system.userbase.sign_in(vals1['userID'],vals1['pwd'])
@@ -210,52 +211,92 @@ class UI:
                 else: #sucessfully log in
 
                     #create home page
-                    self.win_homePage_active = True
-                    temp_layout = copy.deepcopy(self.layout_homePage)
+                    self.win_dashboardPage_active = True
+                    temp_layout = copy.deepcopy(self.layout_dashboardPage)
                     
-                    self.win_homePage = sg.Window('HomePage', temp_layout, finalize=True)
-
-                    self.origin_sheet = self.system.database.access('taiwan_traffic_data') 
-                    self.res_table = Data(self.origin_sheet.get().copy())
-                    
+                    self.win_dashboardPage = sg.Window('Dashboard Panel', temp_layout)
                     #hide user page
                     self.win_userPage.hide()
                     self.win_userPage['-warn_user-'].update(' ')
-                               
-           
-            '''---------step 3: Homepage manipulation----------'''
-            
-
-            while self.win_homePage_active == True:
-            
-                ev2, vals2 = self.win_homePage.read()
-                
-
-                if ev2 == '-Search-': #press search button
-                    self.search(vals2)
-
-                if ev2 == '-Sort-':
-
-                    self.sort(vals2)
-
-                if ev2 == '-display-':
-
-                    self.display(int(vals2['-Input_head-']))
-
-                if ev2 == '-clear-': #rebuild homepage
-                    self.win_homePage.close()
-
-                    temp_layout = copy.deepcopy(self.layout_homePage)
-                    self.win_homePage = sg.Window('HomePage', temp_layout, finalize=True)
-
-                if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
-                    self.win_homePage_active  = False
-                    self.win_homePage.close()
-                    self.win_userPage.un_hide()  #back to login page
-                    break
-        
+                    
+                    
+                    while self.win_dashboardPage_active:
+                        ev3, vals3 = self.win_dashboardPage.read()
+                        
+                        if ev3 == '-Action_access-':
+                            if not vals3['-Sheet_To_Access-']:
+                                sg.popup('Please select a sheet!')
+                                continue
+                            else:
+                                data_sheet = vals3['-Sheet_To_Access-']
+                                
+                                self.origin_sheet = self.system.database.access(data_sheet) 
+                                self.res_table = Data(self.origin_sheet.get().copy())
+                                sg.popup('Access Data: taiwan_tradffic_data!')
+                                
+                                self.win_homePage_active = True
+                                self.win_dashboardPage.hide()
+                                temp_layout = copy.deepcopy(self.layout_homePage)
+                                
+                                self.win_homePage = sg.Window('HomePage', temp_layout, finalize=True)
+                                
+                                while self.win_homePage_active == True:
+                                
+                                    ev2, vals2 = self.win_homePage.read()
+                                    
+    
+                                    if ev2 == '-Search-': #press search button
+                                        self.search(vals2)
+    
+                                    if ev2 == '-Sort-':
+    
+                                        self.sort(vals2)
+    
+                                    if ev2 == '-display-':
+    
+                                        self.display(int(vals2['-Input_head-']))
+    
+                                    if ev2 == '-clear-': #rebuild homepage
+                                        self.win_homePage.close()
+                                        self.res_table = Data(self.origin_sheet.get().copy())
+                                        temp_layout = copy.deepcopy(self.layout_homePage)
+                                        self.win_homePage = sg.Window('HomePage', temp_layout, finalize=True)
+    
+                                    if ev2 == sg.WIN_CLOSED or ev2 == None or ev2 == 'Back': #Close homepage and back to login page
+                                        self.win_homePage_active  = False
+                                        self.win_homePage.close()
+                                        self.win_dashboardPage.un_hide()  #back to login page
+                                        break
+                        
+                        elif ev3 == '-Action_add-':
+                            file_path = vals3['-Input_Path-']
+                            file_name = vals3['-Input_Name-']
+                            self.system.database.add(join(self.system.test_path, file_path),file_name)
+                            sg.popup(f'Successfully add sheet: {file_name}')
+                            
+                            
+                            self.win_dashboardPage['-Sheet_To_Delete-'].update(values =list(self.system.database.show_content())  )
+                            self.win_dashboardPage['-Sheet_To_Access-'].update(values =list(self.system.database.show_content())  )
+                        
+                        
+                        elif ev3 == '-Action_delete-':
+                            file_name = vals3['-Sheet_To_Delete-']
+                            deleted = self.system.database.delete(file_name)
+                            if deleted:
+                                sg.popup(f'Successfully delete sheet: {file_name}')
+                            else:
+                                sg.popup('Data sheet does not exist in the database.')
+                            
+                            self.win_dashboardPage['-Sheet_To_Delete-'].update(values =list(self.system.database.show_content())  )
+                            self.win_dashboardPage['-Sheet_To_Access-'].update(values =list(self.system.database.show_content())  )
+                        
+                        elif ev3 == '-Log_out-':
+                            self.win_dashboardPage_active = False
+                            self.win_dashboardPage.close()
+                            self.win_userPage.un_hide()  #back to login page
+                            
         self.win_userPage.close()
         print("End")
+    
 
-
-# %%
+    
