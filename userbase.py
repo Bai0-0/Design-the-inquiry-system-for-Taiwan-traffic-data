@@ -45,7 +45,7 @@ class UserBase:
         if uid in set(self.__account_info.uid):
             pw_list = list(self.__account_info.loc[self.__account_info.uid == uid, 'password'])
             if pw in pw_list:
-                return (True)
+                return (True, ' ')
             else:
                 print('Incorrect Password.')
                 return (False, 'Incorrect Password.')
