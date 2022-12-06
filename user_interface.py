@@ -85,16 +85,16 @@ class UI:
         frame_sort =sg.Frame(title ='Sort',font = ("Helvetica", 15), size = [500,570], element_justification = 'left', layout =[
             [sg.Text('Select columns and order to sort:',font = ("Helvetica", 12))],
             [sg.Text('Select the first columns to sort:')],
-            [sg.Combo(values=header_sort,key='-Sort_Col_1-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_1-')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_1-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Descending'],key='-Sorting_Order_1-')],
             [sg.Text('Select the second columns to sort:')],
-            [sg.Combo(values=header_sort,key='-Sort_Col_2-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_2-')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_2-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Descending'],key='-Sorting_Order_2-')],
             [sg.Text('Select the third columns to sort:')],
-            [sg.Combo(values=header_sort,key='-Sort_Col_3-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_3-')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_3-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Descending'],key='-Sorting_Order_3-')],
             [sg.Text('Select the fourth columns to sort:')],
-            [sg.Combo(values=header_sort,key='-Sort_Col_4-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_4-')],
-            [sg.Text('Select the fifth columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_5-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_5-')],
-            [sg.Text('Select the sixth columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_6-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_6-')],
-            [sg.Text('Select the seventh columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_7-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Dscending'],key='-Sorting_Order_7-')],
+            [sg.Combo(values=header_sort,key='-Sort_Col_4-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Descending'],key='-Sorting_Order_4-')],
+            [sg.Text('Select the fifth columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_5-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Descending'],key='-Sorting_Order_5-')],
+            [sg.Text('Select the sixth columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_6-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Descending'],key='-Sorting_Order_6-')],
+            [sg.Text('Select the seventh columns to sort:')],[sg.Combo(values=header_sort,key='-Sort_Col_7-',enable_events = True), sg.Listbox(size=(10,2), values=['Ascending', 'Descending'],key='-Sorting_Order_7-')],
             [sg.Button('SORT', key = '-Sort-',size = [7,1])],
             [sg.Text(k='search_output_list')]])
        
@@ -171,7 +171,7 @@ class UI:
             if vals2[col] and vals2[col] != '/':
                 col_name.append(vals2[col])
                 if len(vals2[sort_order])>0:
-                    ascending_order.append(False if vals2[sort_order][0] == 'Dscending' else True)
+                    ascending_order.append(False if vals2[sort_order][0] == 'Descending' else True)
                 else:
                     ascending_order.append(True)
 
