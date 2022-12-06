@@ -76,7 +76,7 @@ class UI:
                     #col7
                     [sg.Checkbox('TripEnd', k='-CB_TripE-'), sg.Listbox(values = ('Y','N'),size = [5,2],select_mode = 'multiple',key = "-LB_TripE-")],
                     [sg.Button('SEARCH',key = "-Search-",size = [7,1])],
-                    [sg.Text('No record founded',text_color = 'red', k = '-warning-',visible = False)]
+                    [sg.Text('No record found',text_color = 'red', k = '-warning-',visible = False)]
 
                     ])
 
