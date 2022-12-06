@@ -28,9 +28,9 @@ class UI:
     
         '''-------------Layout design-------------------'''
 
-        # sg.theme('Reddit')
+      
         sg.theme('default')
-        # sg.theme('SystemDefault1')
+      
 
         header = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation')
         header_sort = ("VehicleType",'DerectionTime_O','Gantry_O','DerectionTime_D','Gantry_D','TripLength',"TripEnd",'TripInformation', '/')
@@ -109,7 +109,7 @@ class UI:
                             [frame_search, frame_sort],
                             [frame_res]]
         self.layout_dashboardPage = [[sg.Text('Welcome to our System!')],
-                        [sg.Text(f'current working directory: {self.system.test_path}')],
+                       
                         [sg.Text('file path'),sg.InputText(key = '-Input_Path-'),sg.Text('filename in database'), sg.InputText(key = '-Input_Name-'),sg.Button("Add Sheet", key = '-Action_add-')],
                         [sg.Text('Current sheets in database')],[sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Access-', enable_events=True), sg.Button('Access Sheet', key = '-Action_access-')],
                         [sg.Text('choose file to delete')],[sg.Combo(values = list(self.system.database.show_content()),key='-Sheet_To_Delete-', enable_events=True), sg.Button('Delete Sheet', key = '-Action_delete-')],
